@@ -1,41 +1,16 @@
-#!/usr/bin/python
+import tweepy
+# auth.py should contain yeach of your 4 oauth elements (1 per line)
+# API key means the same thing as consumer key
+# DO NOT push your own keys to the repo! 
+from auth import API_KEY, API_SECRET, ACCESS_TOKEN, ACCESS_TOKEN_SECRET
 
-import cPickle as pickle
-import nltk.classify.util
-from nltk.classify import NaiveBayesClassifier
-from nltk.tokenize import word_tokenize
-import sys
+auth = tweepy.OAuthHandler(API_KEY, API_SECRET)
+auth.set_access_token(ACCESS_TOKEN, ACCESS_TOKEN_SECRET)
 
-sys.stderr.write("Started mapper.\n");
+api = tweepy.API(auth)
 
+query = 'samsung'
+max_tweets = 1000
+searched_tweets = [status for status in tweepy.Cursor(api.search, q=query).items(max_tweets)]
 
-def word_feats(words):
-    return dict([(word, True) for word in words])
-
-
-def subj(subjLine):
-    subjgen = subjLine.lower()
-    # Replace term1 with your subject term
-    subj1 = "samsung"
-    if subjgen.find(subj1) != -1:
-        subject = subj1
-        return subject
-    else:
-        subject = "No match"
-        return subject
-
-
-def main(argv):
-    classifier = pickle.load(open("classifier.p", "rb"))
-    for line in sys.stdin:
-        tolk_posset = word_tokenize(line.rstrip())
-        d = word_feats(tolk_posset)
-        subjectFull = subj(line)
-        if subjectFull == "No match":
-            print "LongValueSum:" + " " + subjectFull + ": " + "\t" + "1"
-        else:
-            print "LongValueSum:" + " " + subjectFull + ": " + classifier.classify(d) + "\t" + "1"
-
-
-if __name__ == "__main__":
-    main(sys.argv)
+# now we do stuff with searched_tweets
